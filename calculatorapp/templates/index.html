@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .calculator {
+            width: 300px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .calculator-screen {
+            width: 100%;
+            height: 80px;
+            background-color: #222;
+            color: white;
+            text-align: right;
+            padding: 10px;
+            font-size: 2.5rem;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.4);
+        }
+        .calculator-keys {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            height: 60px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 10px;
+            background-color: #444;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        button.operator {
+            background-color: #f36;
+        }
+        button.equals {
+            grid-column: span 2;
+            background-color: #09f;
+        }
+        button.clear {
+            background-color: #f33;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" id="screen" class="calculator-screen" readonly value="{{ result|default:"0" }}">
+            <div class="calculator-keys">
+                <button type="button" class="number" value="7">7</button>
+                <button type="button" class="number" value="8">8</button>
+                <button type="button" class="number" value="9">9</button>
+                <button type="button" class="operator" value="add">+</button>
+
+                <button type="button" class="number" value="4">4</button>
+                <button type="button" class="number" value="5">5</button>
+                <button type="button" class="number" value="6">6</button>
+                <button type="button" class="operator" value="subtract">-</button>
+
+                <button type="button" class="number" value="1">1</button>
+                <button type="button" class="number" value="2">2</button>
+                <button type="button" class="number" value="3">3</button>
+                <button type="button" class="operator" value="multiply">×</button>
+
+                <button type="button" class="clear" value="clear">C</button>
+                <button type="button" class="number" value="0">0</button>
+                <button type="button" class="equals" value="equals">=</button>
+                <button type="button" class="operator" value="divide">÷</button>
+            </div>
+            <input type="hidden" id="number1" name="number1">
+            <input type="hidden" id="number2" name="number2">
+            <input type="hidden" id="operation" name="operation">
+        </form>
+    </div>
+
+    <script>
+        let screen = document.getElementById('screen');
+        let number1 = '';
+        let number2 = '';
+        let operation = '';
+        let isSecondNumber = false;
+
+        document.querySelectorAll('.number').forEach(button => {
+            button.addEventListener('click', function() {
+                if (!isSecondNumber) {
+                    number1 += this.value;
+                    screen.value = number1;
+                } else {
+                    number2 += this.value;
+                    screen.value = number2;
+                }
+            });
+        });
+
+        document.querySelectorAll('.operator').forEach(button => {
+            button.addEventListener('click', function() {
+                operation = this.value;
+                isSecondNumber = true;
+                screen.value = '0';  // Clear screen for second number
+            });
+        });
+
+        document.querySelector('.equals').addEventListener('click', function() {
+            document.getElementById('number1').value = number1;
+            document.getElementById('number2').value = number2;
+            document.getElementById('operation').value = operation;
+            document.querySelector('form').submit();
+        });
+
+        document.querySelector('.clear').addEventListener('click', function() {
+            screen.value = '0';
+            number1 = '';
+            number2 = '';
+            operation = '';
+            isSecondNumber = false;
+        });
+    </script>
+</body>
+</html>
